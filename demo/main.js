@@ -1,9 +1,11 @@
-import { lol } from 'export function lol() { console.log("lol"); }';
+// import 'console.log("wasist");';
+
+import { lol } from 'export function lol() { print("lol in module\\n"); return "lol"; }';
 import 'Object.expando = 5';
 
-console.log("hello world");
+print(`Object.expando ${Object.expando}\n`);
 
-lol();
+print(`lol out module ${lol()}\n`);
 
 async function yo2() {
   print("hello" + "world" + Math.random() + "\n");
