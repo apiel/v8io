@@ -1,0 +1,18 @@
+# Copyright 2020 the v8io authors. All rights reserved. MIT license.
+
+[package]
+name = "v8io"
+version = "0.0.1"
+license = "MIT"
+authors = ["the v8io authors"]
+edition = "2018"
+description = "Provides the v8io executable"
+repository = "https://github.com/apiel/v8io"
+default-run = "v8io"
+
+[[bin]]
+name = "v8io"
+path = "main.rs"
+
+[dependencies]
+rusty_v8 = "0.5.0"
