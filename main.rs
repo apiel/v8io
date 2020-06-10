@@ -1,5 +1,4 @@
 use rusty_v8 as v8;
-mod script_origin;
 mod modules;
 
 pub fn main() {
@@ -15,10 +14,8 @@ pub fn main() {
 
   let file = get_bootstrap_file();
   let contents = std::fs::read_to_string(file.clone()).expect("Something went wrong reading the file");
-  let code = v8::String::new(scope, &contents).unwrap();
-  let origin = script_origin::script_origin(scope, file.clone().as_ref());
-  let source = v8::script_compiler::Source::new(code, &origin);
-  let mut module = v8::script_compiler::compile_module(scope, source).unwrap();
+  let code = v8::String::new(scope, &contents).unwrap(); // maybe we move this in compile_module
+  let mut module = modules::compile_module(scope, file.clone().as_ref(), code).unwrap();
 
   let _result = module.instantiate_module(context, modules::resolver);
   // let _result = module.evaluate(scope, context);
