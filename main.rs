@@ -13,9 +13,7 @@ pub fn main() {
   let scope = context_scope.enter();
 
   let file = get_bootstrap_file();
-  let contents = std::fs::read_to_string(file.clone()).expect("Something went wrong reading the file");
-  let code = v8::String::new(scope, &contents).unwrap(); // maybe we move this in compile_module
-  let mut module = modules::compile_module(scope, file.clone().as_ref(), code).unwrap();
+  let mut module = modules::compile_file(scope, file.clone().as_ref()).unwrap();
 
   let _result = module.instantiate_module(context, modules::resolver);
   // let _result = module.evaluate(scope, context);
