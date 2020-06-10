@@ -1,5 +1,6 @@
 use rusty_v8 as v8;
 mod modules;
+mod core_functions;
 
 pub fn main() {
   let platform = v8::new_default_platform().unwrap();
@@ -12,11 +13,14 @@ pub fn main() {
   let mut context_scope = v8::ContextScope::new(scope, context);
   let scope = context_scope.enter();
 
+  let mut cs = core_functions::init(scope);
+  let scope = cs.enter();
+
   let file = get_bootstrap_file();
   let mut module = modules::compile_file(scope, file.clone().as_ref()).unwrap();
 
   let _result = module.instantiate_module(context, modules::resolver);
-  // let _result = module.evaluate(scope, context);
+  let _result = module.evaluate(scope, context);
 }
 
 fn get_bootstrap_file() -> std::string::String {
