@@ -4,6 +4,7 @@ Import, by default it will look into file for relations... so we can push stuff 
 
 - links:
   - current path: https://doc.rust-lang.org/std/env/fn.current_exe.html
+  - https://learning-rust.github.io/docs/d3.modules.html
 
 - use plugin for FunctionTemplate call as `core.`
     - `usePlugin(__driname + 'fs.so', { some: 'variables'})`
