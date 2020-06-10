@@ -16,6 +16,22 @@ pub fn init<'sc>(
     v8::ContextScope::new(scope, context)
 }
 
+// pub fn init<'sc>(
+//     scope: &'sc mut impl v8::ToLocal<'sc>,
+// ) -> rusty_v8::scope::Scope<rusty_v8::scope::ContextScope, impl v8::ToLocal<'sc>> {
+//     let object_templ = v8::ObjectTemplate::new(scope);
+//     let function_templ = v8::FunctionTemplate::new(scope, fortytwo_callback);
+//     let name = v8::String::new(scope, "yo").unwrap();
+//     object_templ.set(name.into(), function_templ.into());
+
+//     let function_templ = v8::FunctionTemplate::new(scope, print);
+//     let name = v8::String::new(scope, "print").unwrap();
+//     object_templ.set(name.into(), function_templ.into());
+
+//     let context = v8::Context::new_from_template(scope, object_templ);
+//     v8::ContextScope::new(scope, context)
+// }
+
 fn fortytwo_callback(
     scope: v8::FunctionCallbackScope,
     _: v8::FunctionCallbackArguments,
