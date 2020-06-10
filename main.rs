@@ -18,6 +18,8 @@ pub fn main() {
   let file = get_bootstrap_file();
   let mut module = modules::compile_file(scope, file.clone().as_ref()).unwrap();
 
+  println!("main ref {:?}", module.get_identity_hash());
+
   let _result = module.instantiate_module(context, modules::resolver);
   let _result = module.evaluate(scope, context);
 }

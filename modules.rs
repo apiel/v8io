@@ -10,9 +10,7 @@ pub fn resolver<'a>(
     let scope = hs.enter();
     let specifier_str = specifier.to_rust_string_lossy(scope);
 
-    let referrer_id = referrer.get_identity_hash();
-
-    println!("specifier_str {:?} ref {:?}", specifier_str, referrer_id);
+    println!("specifier_str {:?} ref {:?}", specifier_str, referrer.get_identity_hash());
     let module = compile(scope, "module.js", specifier).unwrap();
     Some(scope.escape(module))
 }
