@@ -14,16 +14,12 @@ pub fn main() {
   let file = get_bootstrap_file();
   let contents = std::fs::read_to_string(file.clone()).expect("Something went wrong reading the file");
   let code = v8::String::new(scope, &contents).unwrap();
-  let origin = mock_script_origin(scope, file.clone().as_ref());
+  let origin = script_origin(scope, file.clone().as_ref());
   let source = v8::script_compiler::Source::new(code, &origin);
   let mut module = v8::script_compiler::compile_module(scope, source).unwrap();
-  assert_eq!(v8::ModuleStatus::Uninstantiated, module.get_status());
 
-  let result = module.instantiate_module(context, compile_specifier_as_module_resolve_callback);
-  assert!(result.unwrap());
-  assert_eq!(v8::ModuleStatus::Instantiated, module.get_status());
-
-  let _result = module.evaluate(scope, context);
+  let _result = module.instantiate_module(context, compile_specifier_as_module_resolve_callback);
+  // let _result = module.evaluate(scope, context);
 }
 
 fn get_bootstrap_file() -> std::string::String {
@@ -48,22 +44,22 @@ fn compile_specifier_as_module_resolve_callback<'a>(
   let specifier_str = specifier.to_rust_string_lossy(scope);
   println!("specifier_str {:?}", specifier_str);
 
-  let origin = mock_script_origin(scope, "module.js");
+  let origin = script_origin(scope, "module.js");
   let source = v8::script_compiler::Source::new(specifier, &origin);
   let module = v8::script_compiler::compile_module(scope, source).unwrap();
   Some(scope.escape(module))
 }
 
-fn mock_script_origin<'sc>(
+fn script_origin<'sc>(
   scope: &mut impl v8::ToLocal<'sc>,
   resource_name_: &str,
 ) -> v8::ScriptOrigin<'sc> {
-  let resource_name = v8_str(scope, resource_name_);
+  let resource_name = v8::String::new(scope, resource_name_).unwrap();
   let resource_line_offset = v8::Integer::new(scope, 0);
   let resource_column_offset = v8::Integer::new(scope, 0);
   let resource_is_shared_cross_origin = v8::Boolean::new(scope, true);
   let script_id = v8::Integer::new(scope, 123);
-  let source_map_url = v8_str(scope, "source_map_url");
+  let source_map_url = v8::String::new(scope, "").unwrap();
   let resource_is_opaque = v8::Boolean::new(scope, true);
   let is_wasm = v8::Boolean::new(scope, false);
   let is_module = v8::Boolean::new(scope, true);
@@ -78,8 +74,4 @@ fn mock_script_origin<'sc>(
     is_wasm,
     is_module,
   )
-}
-
-fn v8_str<'sc>(scope: &mut impl v8::ToLocal<'sc>, s: &str) -> v8::Local<'sc, v8::String> {
-  v8::String::new(scope, s).unwrap()
 }
