@@ -3,13 +3,16 @@ use rusty_v8 as v8;
 pub fn resolver<'a>(
     context: v8::Local<'a, v8::Context>,
     specifier: v8::Local<'a, v8::String>,
-    _referrer: v8::Local<'a, v8::Module>,
+    referrer: v8::Local<'a, v8::Module>,
 ) -> Option<v8::Local<'a, v8::Module>> {
     let mut cbs = v8::CallbackScope::new_escapable(context);
     let mut hs = v8::EscapableHandleScope::new(cbs.enter());
     let scope = hs.enter();
     let specifier_str = specifier.to_rust_string_lossy(scope);
-    println!("specifier_str {:?}", specifier_str);
+
+    let referrer_id = referrer.get_identity_hash();
+
+    println!("specifier_str {:?} ref {:?}", specifier_str, referrer_id);
     let module = compile(scope, "module.js", specifier).unwrap();
     Some(scope.escape(module))
 }
