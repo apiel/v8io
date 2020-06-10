@@ -1,24 +1,5 @@
 use rusty_v8 as v8;
 
-// let _setup_guard = setup();
-// let mut isolate = v8::Isolate::new(Default::default());
-// isolate.set_promise_reject_callback(promise_reject_callback);
-// {
-//   let mut hs = v8::HandleScope::new(&mut isolate);
-//   let scope = hs.enter();
-//   let context = v8::Context::new(scope);
-//   let mut cs = v8::ContextScope::new(scope, context);
-//   let scope = cs.enter();
-
-//   let source = "1+2";
-//   let script_origin = mock_script_origin(scope, "foo.js");
-//   let source =
-//     v8::script_compiler::Source::new(v8_str(scope, source), &script_origin);
-
-//   let result = v8::script_compiler::compile_module(scope, source);
-//   assert!(result.is_some());
-// }
-
 pub fn main() {
   let platform = v8::new_default_platform().unwrap();
   v8::V8::initialize_platform(platform);
@@ -30,29 +11,10 @@ pub fn main() {
   let mut context_scope = v8::ContextScope::new(scope, context);
   let scope = context_scope.enter();
 
-  // fn yo
-  let object_templ = v8::ObjectTemplate::new(scope);
-  let function_templ = v8::FunctionTemplate::new(scope, fortytwo_callback);
-  let name = v8_str(scope, "yo");
-  object_templ.set(name.into(), function_templ.into());
-  // let context = v8::Context::new_from_template(scope, object_templ);
-  // let mut cs = v8::ContextScope::new(scope, context);
-  // let scope = cs.enter();
-
-  // fn fn_callback2
-  // let object_templ = v8::ObjectTemplate::new(scope);
-  let function_templ = v8::FunctionTemplate::new(scope, print);
-  let name = v8_str(scope, "print");
-  object_templ.set(name.into(), function_templ.into());
-  let context = v8::Context::new_from_template(scope, object_templ);
-  let mut cs = v8::ContextScope::new(scope, context);
-  let scope = cs.enter();
-
-  let contents =
-    std::fs::read_to_string("./demo/main.js").expect("Something went wrong reading the file");
+  let file = get_bootstrap_file();
+  let contents = std::fs::read_to_string(file.clone()).expect("Something went wrong reading the file");
   let code = v8::String::new(scope, &contents).unwrap();
-
-  let origin = mock_script_origin(scope, "./demo/main.js");
+  let origin = mock_script_origin(scope, file.clone().as_ref());
   let source = v8::script_compiler::Source::new(code, &origin);
   let mut module = v8::script_compiler::compile_module(scope, source).unwrap();
   assert_eq!(v8::ModuleStatus::Uninstantiated, module.get_status());
@@ -62,11 +24,16 @@ pub fn main() {
   assert_eq!(v8::ModuleStatus::Instantiated, module.get_status());
 
   let _result = module.evaluate(scope, context);
+}
 
-  let result = eval(scope, context, "Object.expando").unwrap();
-
-  let result = result.to_string(scope).unwrap();
-  println!("result: {}", result.to_rust_string_lossy(scope));
+fn get_bootstrap_file() -> std::string::String {
+  match std::env::var("V8IO_BOOSTRAP") {
+    Ok(val) => return val,
+    Err(_) => {
+      let file = std::env::current_exe().unwrap().parent().unwrap().join("bootstrap.js");
+      return file.into_os_string().into_string().unwrap();
+    }
+  };
 }
 
 fn compile_specifier_as_module_resolve_callback<'a>(
@@ -78,10 +45,8 @@ fn compile_specifier_as_module_resolve_callback<'a>(
   let mut hs = v8::EscapableHandleScope::new(cbs.enter());
   let scope = hs.enter();
 
-
   let specifier_str = specifier.to_rust_string_lossy(scope);
   println!("specifier_str {:?}", specifier_str);
-
 
   let origin = mock_script_origin(scope, "module.js");
   let source = v8::script_compiler::Source::new(specifier, &origin);
@@ -117,59 +82,4 @@ fn mock_script_origin<'sc>(
 
 fn v8_str<'sc>(scope: &mut impl v8::ToLocal<'sc>, s: &str) -> v8::Local<'sc, v8::String> {
   v8::String::new(scope, s).unwrap()
-}
-
-fn eval<'sc>(
-  scope: &mut impl v8::ToLocal<'sc>,
-  context: v8::Local<v8::Context>,
-  code: &str,
-) -> Option<v8::Local<'sc, v8::Value>> {
-  let mut hs = v8::EscapableHandleScope::new(scope);
-  let scope = hs.enter();
-  let source = v8_str(scope, code);
-  let mut script = v8::Script::compile(scope, context, source, None).unwrap();
-  let r = script.run(scope, context);
-  r.map(|v| scope.escape(v))
-}
-
-fn fortytwo_callback(
-  scope: v8::FunctionCallbackScope,
-  _: v8::FunctionCallbackArguments,
-  mut rv: v8::ReturnValue,
-) {
-  rv.set(v8::Integer::new(scope, 42).into());
-}
-
-fn print(
-  scope: v8::FunctionCallbackScope,
-  args: v8::FunctionCallbackArguments,
-  _rv: v8::ReturnValue,
-) {
-  let arg_len = args.length();
-  assert!(arg_len >= 0 && arg_len <= 2);
-
-  let obj = args.get(0);
-  let is_err_arg = args.get(1);
-
-  let mut hs = v8::HandleScope::new(scope);
-  let scope = hs.enter();
-
-  let mut is_err = false;
-  if arg_len == 2 {
-    let int_val = is_err_arg
-      .integer_value(scope)
-      .expect("Unable to convert to integer");
-    is_err = int_val != 0;
-  };
-  let mut try_catch = v8::TryCatch::new(scope);
-  let _tc = try_catch.enter();
-  let str_ = match obj.to_string(scope) {
-    Some(s) => s,
-    None => v8::String::new(scope, "").unwrap(),
-  };
-  if is_err {
-    eprint!("{}", str_.to_rust_string_lossy(scope));
-  } else {
-    print!("{}", str_.to_rust_string_lossy(scope));
-  }
 }
