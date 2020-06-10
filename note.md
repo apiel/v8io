@@ -1,16 +1,20 @@
-- use plugin for FunctionTemplate
-    print() plugins/print.so
-    https://michael-f-bryan.github.io/rust-ffi-guide/dynamic_loading.html
-    https://docs.rs/libloading/0.5.0/libloading/
-    http://adventures.michaelfbryan.com/posts/plugins-in-rust/
+By default the app take no parameter. It will always try to execute `bootstrap.js`. An env variable might be define to determine the path of this one, else it should take the `bootstrap.js` located next to his instalation folder. The boostrap take care to load all the plugin, without those plugin the app cannot make any interaction outside v8 (no write, no reat, no internet...). Bootstrap will also take care to load the standard library from node, deno or whatever... It will as well take care to setup the module resolver. Through the bootstrap, we can finally have a logic to parse the parameter and decide if we start a script or do something else like showing installation or ...
+
+- use plugin for FunctionTemplate call as `core.`
+    - `usePlugin(__driname + 'fs.so', { some: 'variables'})`
+        - plugin should return a list of available function
+        - plugin should return a type definition
+    - `freezePlugins()` would not allow to load plugin anymore
+    - links:
+        - https://michael-f-bryan.github.io/rust-ffi-guide/dynamic_loading.html
+        - https://docs.rs/libloading/0.5.0/libloading/
+        - http://adventures.michaelfbryan.com/posts/plugins-in-rust/
 
 - module
-    - should resolve as fallback by default
-    - should look for lib/module.js (or this be set in cli)
-      if exist it will be responsable for module resolution
-    - `setModuleResolver(specifier: string, referrer: string)` would overwrite previous
+    - should resolve to the given file as fallback by default
+    - `setModuleResolver((specifier: string, referrer: string) => string)` would overwrite previous and resolve with a js function
+    - should we also allow to resolve with a plugin?
 
-- cli
-    - should fallback as executing the script passed as first param
-    - should look for lib/cli.js (should this be call boostrap.js)
-      if return string execute script
+- default core function:
+    - print
+    - version
