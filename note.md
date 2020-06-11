@@ -1,3 +1,9 @@
+ToDo:
+
+- dyn import
+- setModuleLoader
+
+
 By default the app take no parameter. It will always try to execute `bootstrap.js`. An env variable might be define to determine the path of this one, else it should take the `bootstrap.js` located next to his instalation folder. The boostrap take care to load all the plugin, without those plugin the app cannot make any interaction outside v8 (no write, no reat, no internet...). Bootstrap will also take care to load the standard library from node, deno or whatever... It will as well take care to setup the module resolver. Through the bootstrap, we can finally have a logic to parse the parameter and decide if we start a script or do something else like showing installation or ...
 
 - links:

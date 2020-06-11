@@ -1,6 +1,6 @@
 use rusty_v8 as v8;
-mod modules;
 mod core_functions;
+mod modules;
 
 #[macro_use(lazy_static)]
 extern crate lazy_static;
@@ -10,6 +10,7 @@ pub fn main() {
   v8::V8::initialize_platform(platform);
   v8::V8::initialize();
   let mut isolate = v8::Isolate::new(Default::default());
+  isolate.set_host_import_module_dynamically_callback(modules::dynamic_import_cb);
   let mut handle_scope = v8::HandleScope::new(&mut isolate);
   let scope = handle_scope.enter();
 
@@ -29,7 +30,11 @@ fn get_bootstrap_file() -> std::string::String {
   match std::env::var("V8IO_BOOSTRAP") {
     Ok(val) => return val,
     Err(_) => {
-      let file = std::env::current_exe().unwrap().parent().unwrap().join("bootstrap.js");
+      let file = std::env::current_exe()
+        .unwrap()
+        .parent()
+        .unwrap()
+        .join("bootstrap.js");
       return file.into_os_string().into_string().unwrap();
     }
   };

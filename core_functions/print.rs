@@ -17,8 +17,7 @@ pub fn eprint(
 }
 
 fn get_text(scope: v8::FunctionCallbackScope, args: v8::FunctionCallbackArguments) -> String {
-    let arg_len = args.length();
-    assert!(arg_len == 1);
+    assert!(args.length() == 1);
     let obj = args.get(0);
     let mut hs = v8::HandleScope::new(scope);
     let scope = hs.enter();

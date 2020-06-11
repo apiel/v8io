@@ -3,6 +3,45 @@ use std::path::Path;
 
 mod module_map;
 
+pub extern "C" fn dynamic_import_cb(
+    context: v8::Local<v8::Context>,
+    referrer: v8::Local<v8::ScriptOrModule>,
+    specifier: v8::Local<v8::String>,
+) -> *mut v8::Promise {
+    // core/bindings.rs l.246
+    let mut cbs = v8::CallbackScope::new_escapable(context);
+    let mut hs = v8::EscapableHandleScope::new(cbs.enter());
+    let scope = hs.enter();
+
+    let specifier_str = specifier
+        .to_string(scope)
+        .unwrap()
+        .to_rust_string_lossy(scope);
+    let referrer_name = referrer.get_resource_name();
+    let referrer_name_str = referrer_name
+        .to_string(scope)
+        .unwrap()
+        .to_rust_string_lossy(scope);
+
+    println!(
+        "dynamic_import_cb {:?} ref {:?}",
+        specifier_str, referrer_name_str
+    );
+
+    let resolver = v8::PromiseResolver::new(scope, context).unwrap();
+    let promise = resolver.get_promise(scope);
+
+    let mut resolver_handle = v8::Global::new();
+    resolver_handle.set(scope, resolver);
+    {
+    //   let state_rc = EsIsolate::state(scope.isolate());
+    //   let mut state = state_rc.borrow_mut();
+    //   state.dyn_import_cb(resolver_handle, &specifier_str, &referrer_name_str);
+    }
+
+    &mut *scope.escape(promise)
+}
+
 pub fn resolver<'a>(
     context: v8::Local<'a, v8::Context>,
     specifier: v8::Local<'a, v8::String>,
@@ -28,6 +67,7 @@ pub fn compile_file<'sc>(
     let source_string = v8::String::new(scope, &contents).unwrap();
     let module = compile(scope, file, source_string);
 
+    println!("compile_file {:?}", file);
     insert(module.clone().unwrap(), file.to_string());
 
     module
