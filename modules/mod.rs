@@ -3,11 +3,6 @@ use std::path::Path;
 
 mod module_map;
 
-pub fn insert(module: v8::Local<v8::Module>, absolute_path: String) {
-    let module_item = module_map::ModuleItem { absolute_path };
-    module_map::insert(module.get_identity_hash(), module_item);
-}
-
 pub fn resolver<'a>(
     context: v8::Local<'a, v8::Context>,
     specifier: v8::Local<'a, v8::String>,
@@ -44,6 +39,11 @@ pub fn compile_file<'sc>(
     insert(module.clone().unwrap(), file.to_string());
 
     module
+}
+
+fn insert(module: v8::Local<v8::Module>, absolute_path: String) {
+    let module_item = module_map::ModuleItem { absolute_path };
+    module_map::insert(module.get_identity_hash(), module_item);
 }
 
 fn compile<'sc>(
