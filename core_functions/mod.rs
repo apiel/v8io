@@ -9,12 +9,17 @@ pub fn init<'sc>(
     &'sc mut impl v8::ToLocal<'sc>,
 ) {
     let object_templ = v8::ObjectTemplate::new(scope);
+
     let function_templ = v8::FunctionTemplate::new(scope, fortytwo_callback);
     let name = v8::String::new(scope, "yo").unwrap();
     object_templ.set(name.into(), function_templ.into());
 
     let function_templ = v8::FunctionTemplate::new(scope, print::print);
     let name = v8::String::new(scope, "print").unwrap();
+    object_templ.set(name.into(), function_templ.into());
+
+    let function_templ = v8::FunctionTemplate::new(scope, print::eprint);
+    let name = v8::String::new(scope, "eprint").unwrap();
     object_templ.set(name.into(), function_templ.into());
 
     (object_templ, scope)
