@@ -20,8 +20,6 @@ pub fn main() {
 
   let file = get_bootstrap_file();
   let mut module = modules::compile_file(scope, file.clone().as_ref()).unwrap();
-  // ToDo: might move insert into modules::compile_file ?
-  modules::insert(module, file.clone());
 
   let _result = module.instantiate_module(context, modules::resolver);
   let _result = module.evaluate(scope, context);
