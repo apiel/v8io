@@ -18,15 +18,13 @@ pub extern "C" fn dynamic_import_cb(
         .unwrap()
         .to_rust_string_lossy(scope);
     let referrer_name = referrer.get_resource_name();
-    let referrer_name_str = referrer_name
+    let referrer_str = referrer_name
         .to_string(scope)
         .unwrap()
         .to_rust_string_lossy(scope);
 
-    println!(
-        "dynamic_import_cb {:?} ref {:?}",
-        specifier_str, referrer_name_str
-    );
+    let specifier_path = get_specifier_path(specifier_str, referrer_str);
+    println!("dynamic_import_cb {:?}", specifier_path);
 
     let resolver = v8::PromiseResolver::new(scope, context).unwrap();
     let promise = resolver.get_promise(scope);
@@ -34,12 +32,20 @@ pub extern "C" fn dynamic_import_cb(
     let mut resolver_handle = v8::Global::new();
     resolver_handle.set(scope, resolver);
     {
-    //   let state_rc = EsIsolate::state(scope.isolate());
-    //   let mut state = state_rc.borrow_mut();
-    //   state.dyn_import_cb(resolver_handle, &specifier_str, &referrer_name_str);
+        dynamic_resolver(context, specifier_path, scope);
     }
 
     &mut *scope.escape(promise)
+}
+
+fn dynamic_resolver<'a>(
+    context: v8::Local<'a, v8::Context>,
+    specifier_path: String,
+    scope: &mut impl v8::ToLocal<'a>,
+) {
+    let mut module = compile_file(scope, &specifier_path).unwrap();
+    let _result = module.instantiate_module(context, resolver);
+    let _result = module.evaluate(scope, context);
 }
 
 pub fn resolver<'a>(
@@ -51,7 +57,8 @@ pub fn resolver<'a>(
     let mut hs = v8::EscapableHandleScope::new(cbs.enter());
     let scope = hs.enter();
     let specifier_str = specifier.to_rust_string_lossy(scope);
-    let specifier_path = get_specifier_path(specifier_str, referrer);
+    let referrer_str = module_map::get_absolute_path(referrer.get_identity_hash());
+    let specifier_path = get_specifier_path(specifier_str, referrer_str);
 
     // println!("specifier_path {:?}", specifier_path);
     let module = compile_file(scope, &specifier_path).unwrap();
@@ -114,9 +121,8 @@ fn script_origin<'sc>(
     )
 }
 
-fn get_specifier_path<'a>(specifier_str: String, referrer: v8::Local<'a, v8::Module>) -> String {
-    let referrer_path = module_map::get_absolute_path(referrer.get_identity_hash());
-    Path::new(&referrer_path)
+fn get_specifier_path<'a>(specifier_str: String, referrer_str: String) -> String {
+    Path::new(&referrer_str)
         .parent()
         .unwrap()
         .join(specifier_str)
