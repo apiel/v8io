@@ -16,9 +16,9 @@ pub fn insert(identity_hash: i32, module_item: ModuleItem) {
         .insert(identity_hash, module_item);
 }
 
-pub fn get(identity_hash: i32) -> Option<&'static ModuleItem> {
-    MODULE_MAP.lock().unwrap().get(&identity_hash).clone() //.cloned() //.clone() //.unwrap()
-}
+// pub fn get(identity_hash: i32) -> Option<&'static ModuleItem> {
+//     MODULE_MAP.lock().unwrap().get(&identity_hash).clone() //.cloned() //.clone() //.unwrap()
+// }
 
 // pub fn get<'a>(identity_hash: &'a i32) -> Option<&'a ModuleItem> {
 // pub fn get(identity_hash: i32) -> Option<&'static ModuleItem> {

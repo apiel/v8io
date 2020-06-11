@@ -1,11 +1,13 @@
 use rusty_v8 as v8;
-mod modules;
 mod core_functions;
+mod modules;
 
 #[macro_use(lazy_static)]
 extern crate lazy_static;
 
 pub fn main() {
+  let modules = modules::Modules::new();
+
   let platform = v8::new_default_platform().unwrap();
   v8::V8::initialize_platform(platform);
   v8::V8::initialize();
@@ -19,11 +21,15 @@ pub fn main() {
   let scope = cs.enter();
 
   let file = get_bootstrap_file();
-  let mut module = modules::compile_file(scope, file.clone().as_ref()).unwrap();
-  // ToDo: might move insert into modules::compile_file ?
-  modules::insert(module, file.clone());
+  let mut module = modules.compile_file(scope, file.clone().as_ref()).unwrap();
 
-  let _result = module.instantiate_module(context, modules::resolver);
+  let resolver =
+    |context: v8::Local<v8::Context>,
+     specifier: v8::Local<v8::String>,
+     referrer: v8::Local<v8::Module>|
+     -> Option<v8::Local<v8::Module>> { modules.resolver(context, specifier, referrer) };
+
+  let _result = module.instantiate_module(context, resolver);
   let _result = module.evaluate(scope, context);
 }
 
@@ -31,7 +37,11 @@ fn get_bootstrap_file() -> std::string::String {
   match std::env::var("V8IO_BOOSTRAP") {
     Ok(val) => return val,
     Err(_) => {
-      let file = std::env::current_exe().unwrap().parent().unwrap().join("bootstrap.js");
+      let file = std::env::current_exe()
+        .unwrap()
+        .parent()
+        .unwrap()
+        .join("bootstrap.js");
       return file.into_os_string().into_string().unwrap();
     }
   };
