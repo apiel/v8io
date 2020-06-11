@@ -1,8 +1,8 @@
 use rusty_v8 as v8;
 use std::path::Path;
 
-pub mod module_map;
 pub mod compile;
+pub mod module_map;
 
 pub extern "C" fn dynamic_import_cb(
     context: v8::Local<v8::Context>,
