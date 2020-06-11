@@ -3,6 +3,7 @@ use std::path::Path;
 
 pub mod compile;
 pub mod module_map;
+mod custom_module_loader;
 
 pub extern "C" fn dynamic_import_cb(
     context: v8::Local<v8::Context>,
