@@ -21,12 +21,6 @@ pub fn get(identity_hash: i32) -> Option<ModuleItem> {
     MODULE_MAP.lock().unwrap().get(&identity_hash).cloned()
 }
 
-// pub fn get(identity_hash: i32) -> Option<ModuleItem> {
-//     MODULE_MAP
-//         .lock()
-//         .unwrap()
-//         .get(&identity_hash)
-//         .map(|m| ModuleItem {
-//             absolute_path: m.absolute_path.clone(),
-//         })
-// }
+pub fn get_absolute_path(identity_hash: i32) -> std::string::String {
+    get(identity_hash).unwrap().absolute_path
+}

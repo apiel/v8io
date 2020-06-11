@@ -1,11 +1,10 @@
 use rusty_v8 as v8;
+use std::path::Path;
 
 mod module_map;
 
 pub fn insert(module: v8::Local<v8::Module>, absolute_path: String) {
-    let module_item = module_map::ModuleItem {
-        absolute_path
-    };
+    let module_item = module_map::ModuleItem { absolute_path };
     module_map::insert(module.get_identity_hash(), module_item);
 }
 
@@ -19,13 +18,17 @@ pub fn resolver<'a>(
     let scope = hs.enter();
     let specifier_str = specifier.to_rust_string_lossy(scope);
 
-    let referrer_item = module_map::get(referrer.get_identity_hash());
-    println!(
-        "specifier_str {:?} ref {:?}",
-        specifier_str,
-        referrer_item.unwrap().absolute_path,
-    );
-    let module = compile(scope, "module.js", specifier).unwrap();
+    let referrer_path = module_map::get_absolute_path(referrer.get_identity_hash());
+    let specifier_path = Path::new(&referrer_path)
+        .parent()
+        .unwrap()
+        .join(specifier_str)
+        .as_path()
+        .display()
+        .to_string();
+
+    // println!("specifier_path {:?}", specifier_path);
+    let module = compile_file(scope, &specifier_path).unwrap();
     Some(scope.escape(module))
 }
 
