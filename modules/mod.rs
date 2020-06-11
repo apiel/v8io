@@ -12,15 +12,7 @@ pub fn resolver<'a>(
     let mut hs = v8::EscapableHandleScope::new(cbs.enter());
     let scope = hs.enter();
     let specifier_str = specifier.to_rust_string_lossy(scope);
-
-    let referrer_path = module_map::get_absolute_path(referrer.get_identity_hash());
-    let specifier_path = Path::new(&referrer_path)
-        .parent()
-        .unwrap()
-        .join(specifier_str)
-        .as_path()
-        .display()
-        .to_string();
+    let specifier_path = get_specifier_path(specifier_str, referrer);
 
     // println!("specifier_path {:?}", specifier_path);
     let module = compile_file(scope, &specifier_path).unwrap();
@@ -80,4 +72,15 @@ fn script_origin<'sc>(
         is_wasm,
         is_module,
     )
+}
+
+fn get_specifier_path<'a>(specifier_str: String, referrer: v8::Local<'a, v8::Module>) -> String {
+    let referrer_path = module_map::get_absolute_path(referrer.get_identity_hash());
+    Path::new(&referrer_path)
+        .parent()
+        .unwrap()
+        .join(specifier_str)
+        .as_path()
+        .display()
+        .to_string()
 }
