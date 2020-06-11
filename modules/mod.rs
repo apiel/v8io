@@ -10,7 +10,11 @@ pub fn resolver<'a>(
     let scope = hs.enter();
     let specifier_str = specifier.to_rust_string_lossy(scope);
 
-    println!("specifier_str {:?} ref {:?}", specifier_str, referrer.get_identity_hash());
+    println!(
+        "specifier_str {:?} ref {:?}",
+        specifier_str,
+        referrer.get_identity_hash()
+    );
     let module = compile(scope, "module.js", specifier).unwrap();
     Some(scope.escape(module))
 }
@@ -19,12 +23,13 @@ pub fn compile_file<'sc>(
     scope: &mut impl v8::ToLocal<'sc>,
     file: &str,
 ) -> Option<v8::Local<'sc, v8::Module>> {
-    let contents = std::fs::read_to_string(file.clone()).expect("Something went wrong reading the file");
+    let contents =
+        std::fs::read_to_string(file.clone()).expect("Something went wrong reading the file");
     let source_string = v8::String::new(scope, &contents).unwrap();
     compile(scope, file, source_string)
 }
 
-pub fn compile<'sc>(
+fn compile<'sc>(
     scope: &mut impl v8::ToLocal<'sc>,
     file: &str,
     source_string: v8::Local<v8::String>,
