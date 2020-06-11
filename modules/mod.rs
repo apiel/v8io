@@ -24,7 +24,7 @@ pub extern "C" fn dynamic_import_cb(
         .to_rust_string_lossy(scope);
 
     let specifier_path = get_specifier_path(specifier_str, referrer_str);
-    println!("dynamic_import_cb {:?}", specifier_path);
+    // println!("dynamic_import_cb {:?}", specifier_path);
 
     let resolver = v8::PromiseResolver::new(scope, context).unwrap();
     let promise = resolver.get_promise(scope);
@@ -32,13 +32,14 @@ pub extern "C" fn dynamic_import_cb(
     let mut resolver_handle = v8::Global::new();
     resolver_handle.set(scope, resolver);
     {
-        dynamic_resolver(context, specifier_path, scope);
+        dynamic_resolver(resolver_handle, context, specifier_path, scope);
     }
 
     &mut *scope.escape(promise)
 }
 
 fn dynamic_resolver<'a>(
+    mut resolver_handle: v8::Global<v8::PromiseResolver>,
     context: v8::Local<'a, v8::Context>,
     specifier_path: String,
     scope: &mut impl v8::ToLocal<'a>,
@@ -46,6 +47,12 @@ fn dynamic_resolver<'a>(
     let mut module = compile_file(scope, &specifier_path).unwrap();
     let _result = module.instantiate_module(context, resolver);
     let _result = module.evaluate(scope, context);
+
+    let resolver = resolver_handle.get(scope).unwrap();
+    resolver_handle.reset(scope);
+
+    let module_namespace = module.get_module_namespace();
+    resolver.resolve(context, module_namespace).unwrap();
 }
 
 pub fn resolver<'a>(
@@ -74,7 +81,7 @@ pub fn compile_file<'sc>(
     let source_string = v8::String::new(scope, &contents).unwrap();
     let module = compile(scope, file, source_string);
 
-    println!("compile_file {:?}", file);
+    // println!("compile_file {:?}", file);
     insert(module.clone().unwrap(), file.to_string());
 
     module
