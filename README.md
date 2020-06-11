@@ -10,13 +10,22 @@ This boostrap is intented to setup the working environment. In this file, we wil
 
 ## Import module
 
-The default module loader is very basic and only allow to import files with relative path. Also, unlike node.js, we must specify the extension of the file.
+The default module loader is very basic and only allow to import files with relative path. Also, unlike Node.js, we must specify the extension of the file.
 
 ```js
-import "./bootchild.js";
+import "./module.js";
 
 print(`hello world\n`);
 ```
+
+To load module dynamically, like `require()` in Node.js, we can use dynamic import.
+
+```js
+import('./module.js').then(({ default }) => {
+    print(`module loaded ${ default() }\n`);
+});
+```
+Unlike dynamic import in Deno or `require()` in Node.js, the module will always be instantiated and not use the cache. We can change this behavior by using a custom module loader.
 
 ### Custom module loader
 
