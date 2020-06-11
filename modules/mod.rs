@@ -2,10 +2,11 @@ use rusty_v8 as v8;
 
 mod module_map;
 
-lazy_static! {
-    static ref MODULE_MAP: module_map::ModuleMap = {
-        module_map::ModuleMap::new()
+pub fn insert(module: v8::Local<v8::Module>, absolute_path: String) {
+    let module_item = module_map::ModuleItem {
+        absolute_path
     };
+    module_map::insert(module.get_identity_hash(), module_item);
 }
 
 pub fn resolver<'a>(

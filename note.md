@@ -3,6 +3,9 @@ By default the app take no parameter. It will always try to execute `bootstrap.j
 - links:
   - current path: https://doc.rust-lang.org/std/env/fn.current_exe.html
   - https://learning-rust.github.io/docs/d3.modules.html
+  - singleton
+        - https://stackoverflow.com/questions/34832583/global-mutable-hashmap-in-a-library
+        - https://stackoverflow.com/questions/27791532/how-do-i-create-a-global-mutable-singleton
 
 - use plugin for FunctionTemplate call as `core.`
     - `usePlugin(__driname + 'fs.so', { some: 'variables'})`
