@@ -2,6 +2,9 @@ use rusty_v8 as v8;
 mod modules;
 mod core_functions;
 
+#[macro_use(lazy_static)]
+extern crate lazy_static;
+
 pub fn main() {
   let platform = v8::new_default_platform().unwrap();
   v8::V8::initialize_platform(platform);

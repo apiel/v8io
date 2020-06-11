@@ -4,7 +4,7 @@ struct Module {
     absolute_path: String,
 }
 
-struct ModuleMap {
+pub struct ModuleMap {
     list: HashMap<i32, Module>,
 }
 

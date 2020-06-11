@@ -1,5 +1,13 @@
 use rusty_v8 as v8;
 
+mod module_map;
+
+lazy_static! {
+    static ref MODULE_MAP: module_map::ModuleMap = {
+        module_map::ModuleMap::new()
+    };
+}
+
 pub fn resolver<'a>(
     context: v8::Local<'a, v8::Context>,
     specifier: v8::Local<'a, v8::String>,
