@@ -18,7 +18,7 @@ By default the app take no parameter. It will always try to execute `bootstrap.j
         - http://adventures.michaelfbryan.com/posts/plugins-in-rust/
 
 - module
-    - first it will look at `imports.map` file (why an import file????)
+    - ~~first it will look at `imports.map` file (why an import file????)~~
         - just a list:
             fs  ./lib/fs.js
             path    ./lib/path.js
