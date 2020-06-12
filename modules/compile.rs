@@ -6,8 +6,9 @@ pub fn compile_file<'sc>(
     scope: &mut impl v8::ToLocal<'sc>,
     file: &str,
 ) -> Option<v8::Local<'sc, v8::Module>> {
-    let contents =
-        std::fs::read_to_string(file.clone()).expect("Something went wrong reading the file");
+    let err_msg = "Something went wrong reading the file ".to_string() + file;
+    let contents = std::fs::read_to_string(file.clone())
+        .expect(&err_msg);
     let source_string = v8::String::new(scope, &contents).unwrap();
     let module = compile(scope, file, source_string);
 

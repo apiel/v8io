@@ -15,7 +15,7 @@ pub fn init_module_loader<'sc>(scope: &mut impl v8::ToLocal<'sc>, context: v8::L
     };
     if Path::new(&path).exists() {
         let contents =
-            std::fs::read_to_string(path).expect("Something went wrong reading the file");
+            std::fs::read_to_string(path).expect("Something went wrong while loading custom module loader.");
         let source = v8::String::new(scope, &contents).unwrap();
         let mut script = v8::Script::compile(scope, context, source, None).unwrap();
         script.run(scope, context).unwrap();
