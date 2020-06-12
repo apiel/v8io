@@ -4,9 +4,9 @@ Ryan Dahl created Node.js and about 10 years later Deno. Deno is kind of improvm
 
 ## Bootstrap
 
-V8io is very basic and reduce to the strict minimum to be customizable. V8io doesn't get any parameter, when it is instaciated, it will always try to run `./boostrap.js` that is located next to his executable installation folder (not where you instanciate it). Of course, is it not that's strict, we can as well use the environment variable `V8IO_BOOSTRAP` to provide the absolute path of the bootstrap script.
+V8io is very basic and reduce to the strict minimum to be customizable. V8io doesn't get any parameter, when it is instaciated, it will always try to run `./boostrap.js` that is located next to his executable installation folder (not where you instanciate it). Of course, is it not that's strict, we can as well use an environment variable `V8IO_BOOSTRAP` to provide the absolute path of the bootstrap script.
 
-This boostrap is intented to setup the working environment. In this file, we will decide which plugin to load, how to resolve the modules and this will be as well the place to parse the params passed during instantiation. We will then decide if we run an application or if we do some devops operations like installing a module.
+This boostrap is intented to setup the working environment. In this file, we will decide which plugin to load, how to resolve the modules and will be as well the place to parse the params passed during instantiation. We will then decide if we run an application or if we do some devops operations like installing a module.
 
 ## Import module
 
@@ -30,9 +30,9 @@ Unlike dynamic import in Deno or `require()` in Node.js, the module will always 
 
 ### Custom module loader
 
-To define your own loader, create a file called `module_loader.js`, in the same folder as the v8io executable, like `bootstrap.js`. We can as well use an environment variable `V8IO_MODULE_LOADER` to provide the absolute path of the module loader script.
+To define your own loader, create a file called `module_loader.js`, in the same folder as the v8io executable, as we did for `bootstrap.js`. We can as well use an environment variable `V8IO_MODULE_LOADER` to provide the absolute path of the module loader script.
 
-This script should contain a function `coreModuleLoader((specifier: string, referrer: string) => string | undefined)` and return a string to the path of the module to load. If something else is returned, then it will fallback to the default module loader.
+This script should contain a function `coreModuleLoader(specifier: string, referrer: string) => string | undefined` and return a string to the path of the module to load. If something else is returned, then it will fallback to the default module loader.
 
 ```js
 function coreModuleLoader(specifier, referrer) {
@@ -51,9 +51,12 @@ Only few native functions are available by default. All other native functions m
 
 - Use `print(text: string)` only for the primary output of your program.
 - Use `eprint(text: string)` only for error and progress messages.
+- Use `getArgs()` to be implemented.
 
 ## Plugin
 
 To provide more native feature to v8io, we need to use plugins (shared library .dll, .so, etc).
 
-To be implemented: - `usePlugin(__driname + 'fs.so', { some: 'variables'})` - plugin should return a list of available function - plugin should return a type definition - `freezePlugins()` would not allow to load plugin anymore
+To be implemented:
+ - `usePlugin(__driname + 'fs.so', { some: 'variables'})` 
+ - plugin should return a list of available function - plugin should return a type definition - `freezePlugins()` would not allow to load plugin anymore
