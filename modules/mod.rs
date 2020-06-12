@@ -25,7 +25,7 @@ pub extern "C" fn dynamic_import_cb(
         .unwrap()
         .to_rust_string_lossy(scope);
 
-    let specifier_path = get_specifier_path(specifier_str, referrer_str);
+    let specifier_path = get_specifier_path(scope, context, specifier_str, referrer_str);
     // println!("dynamic_import_cb {:?}", specifier_path);
 
     let resolver = v8::PromiseResolver::new(scope, context).unwrap();
@@ -68,22 +68,31 @@ pub fn resolver<'a>(
     let specifier_str = specifier.to_rust_string_lossy(scope);
     let referrer_str = module_map::get_absolute_path(referrer.get_identity_hash());
 
-    let specifier_path = match custom_module_loader::get_specifier_path(
-        scope,
-        context,
-        specifier_str.clone(),
-        referrer_str.clone(),
-    ) {
-        Some(s) => s,
-        None => get_specifier_path(specifier_str, referrer_str),
-    };
+    let specifier_path = get_specifier_path(scope, context, specifier_str, referrer_str);
 
     // println!("specifier_path {:?}", specifier_path);
     let module = compile::compile_file(scope, &specifier_path).unwrap();
     Some(scope.escape(module))
 }
 
-fn get_specifier_path<'a>(specifier_str: String, referrer_str: String) -> String {
+fn get_specifier_path<'sc>(
+    scope: &mut impl v8::ToLocal<'sc>,
+    context: v8::Local<v8::Context>,
+    specifier_str: String,
+    referrer_str: String,
+) -> String {
+    match custom_module_loader::get_specifier_path(
+        scope,
+        context,
+        specifier_str.clone(),
+        referrer_str.clone(),
+    ) {
+        Some(s) => s,
+        None => get_specifier_path_root(specifier_str, referrer_str),
+    }
+}
+
+fn get_specifier_path_root(specifier_str: String, referrer_str: String) -> String {
     Path::new(&referrer_str)
         .parent()
         .unwrap()

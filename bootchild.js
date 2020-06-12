@@ -1,4 +1,4 @@
-import "./bootchild3.js";
+import "./bootchild3";
 
 let val = 123;
 print(`bootchild ${val}\n`);
