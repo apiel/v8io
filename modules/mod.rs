@@ -68,14 +68,15 @@ pub fn resolver<'a>(
     let specifier_str = specifier.to_rust_string_lossy(scope);
     let referrer_str = module_map::get_absolute_path(referrer.get_identity_hash());
 
-    custom_module_loader::get_specifier_path(
+    let specifier_path = match custom_module_loader::get_specifier_path(
         scope,
         context,
         specifier_str.clone(),
         referrer_str.clone(),
-    );
-
-    let specifier_path = get_specifier_path(specifier_str, referrer_str);
+    ) {
+        Some(s) => s,
+        None => get_specifier_path(specifier_str, referrer_str),
+    };
 
     // println!("specifier_path {:?}", specifier_path);
     let module = compile::compile_file(scope, &specifier_path).unwrap();

@@ -27,7 +27,7 @@ pub fn get_specifier_path<'sc>(
     context: v8::Local<v8::Context>,
     specifier_str: String,
     referrer_str: String,
-) {
+) -> Option<String> {
     // here we could have a flag in custom_module_loader to know if it is activated
 
     let code = "typeof coreModuleLoader === 'function' && coreModuleLoader('".to_string()
@@ -36,11 +36,13 @@ pub fn get_specifier_path<'sc>(
         + &referrer_str
         + "')";
 
-    // let code = "typeof coreModuleLoader === 'function' && coreModuleLoader('lol','yo')";
-
     let source = v8::String::new(scope, &code).unwrap();
     let mut script = v8::Script::compile(scope, context, source, None).unwrap();
     let result = script.run(scope, context).unwrap();
-    let result = result.to_string(scope).unwrap();
-    println!("resolver: {}", result.to_rust_string_lossy(scope));
+    if result.is_string() {
+        let result = result.to_string(scope).unwrap();
+        return Some(result.to_rust_string_lossy(scope));
+    } else {
+        return None;
+    }
 }
