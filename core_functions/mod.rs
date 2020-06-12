@@ -1,6 +1,7 @@
 use rusty_v8 as v8;
 
 mod print;
+mod set_module_loader;
 
 pub fn init<'sc>(
     scope: &'sc mut impl v8::ToLocal<'sc>,
@@ -20,6 +21,10 @@ pub fn init<'sc>(
 
     let function_templ = v8::FunctionTemplate::new(scope, print::eprint);
     let name = v8::String::new(scope, "eprint").unwrap();
+    object_templ.set(name.into(), function_templ.into());
+
+    let function_templ = v8::FunctionTemplate::new(scope, set_module_loader::set_module_loader);
+    let name = v8::String::new(scope, "setModuleLoader").unwrap();
     object_templ.set(name.into(), function_templ.into());
 
     (object_templ, scope)

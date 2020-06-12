@@ -72,13 +72,20 @@ pub fn resolver<'a>(
 
 
 
+// // let value = eval(scope, context, "() => 0").unwrap();
+// // assert!(value.is_function());
+// let result = eval(scope, context, "typeof coreModuleLoader === 'function' && coreModuleLoader()").unwrap();
+// let result = result.to_string(scope).unwrap();
+// println!("coreModuleLoader: {}", result.to_rust_string_lossy(scope));
+// let result = eval(scope, context, "typeof coreYo").unwrap();
+// let result = result.to_string(scope).unwrap();
+// println!("coreYo: {}", result.to_rust_string_lossy(scope));
 
-let result = eval(scope, context, "typeof coreModuleLoader === 'function' && coreModuleLoader()").unwrap();
+let source = v8::String::new(scope, "typeof coreModuleLoader").unwrap();
+let mut script = v8::Script::compile(scope, context, source, None).unwrap();
+let result = script.run(scope, context).unwrap();
 let result = result.to_string(scope).unwrap();
-println!("coreModuleLoader: {}", result.to_rust_string_lossy(scope));
-// assert!(result.is_number());
-// let expected = v8::Number::new(scope, 10.);
-// assert!(result.strict_equals(expected.into()));
+println!("resolver: {}", result.to_rust_string_lossy(scope));
 
 
 
@@ -101,7 +108,7 @@ fn get_specifier_path<'a>(specifier_str: String, referrer_str: String) -> String
 
 
 // just for testing
-fn eval<'sc>(
+pub fn eval<'sc>(
     scope: &mut impl v8::ToLocal<'sc>,
     context: v8::Local<v8::Context>,
     code: &str,

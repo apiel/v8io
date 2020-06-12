@@ -1,10 +1,13 @@
 import "./bootchild.js";
 import "./bootchild.js";
 
-function coreModuleLoader() {
+setModuleLoader();
+
+export function coreModuleLoader() {
   print(`call "coreModuleLoader"\n`);
   return 10;
 }
+export let coreYo = 123;
 
 // async function yo2() {
 //   print("hello" + "world" + Math.random() + "\n");
