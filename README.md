@@ -25,13 +25,25 @@ import('./module.js').then(({ default }) => {
     print(`module loaded ${ default() }\n`);
 });
 ```
+
 Unlike dynamic import in Deno or `require()` in Node.js, the module will always be instantiated and not use the cache. We can change this behavior by using a custom module loader.
 
 ### Custom module loader
 
-To be implemented:
-    - `coreModuleLoader((specifier: string, referrer: string) => string)` would default loader and resolve with a js function
-    - should we also allow to resolve with a native plugin?
+To define your own loader, create a file called `module_loader.js`, in the same folder as the v8io executable, like `bootstrap.js`. We can as well use an environment variable `V8IO_MODULE_LOADER` to provide the absolute path of the module loader script.
+
+This script should contain a function `coreModuleLoader((specifier: string, referrer: string) => string | undefined)` and return a string to the path of the module to load. If something else is returned, then it will fallback to the default module loader.
+
+```js
+function coreModuleLoader(specifier, referrer) {
+  const ret =
+    !specifier.endsWith(".js") &&
+    `${referrer.substr(0, referrer.lastIndexOf("/") - 1)}${specifier}.js`;
+  return ret;
+}
+```
+
+> ToDo: instead to return a string to the file, return a string with the code. Or could be both?
 
 ## Core api
 
@@ -44,8 +56,4 @@ Only few native functions are available by default. All other native functions m
 
 To provide more native feature to v8io, we need to use plugins (shared library .dll, .so, etc).
 
-To be implemented:
-    - `usePlugin(__driname + 'fs.so', { some: 'variables'})`
-        - plugin should return a list of available function
-        - plugin should return a type definition
-    - `freezePlugins()` would not allow to load plugin anymore
+To be implemented: - `usePlugin(__driname + 'fs.so', { some: 'variables'})` - plugin should return a list of available function - plugin should return a type definition - `freezePlugins()` would not allow to load plugin anymore
