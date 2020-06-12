@@ -30,7 +30,7 @@ Unlike dynamic import in Deno or `require()` in Node.js, the module will always 
 ### Custom module loader
 
 To be implemented:
-    - `setModuleLoader((specifier: string, referrer: string) => string)` would default loader and resolve with a js function
+    - `coreModuleLoader((specifier: string, referrer: string) => string)` would default loader and resolve with a js function
     - should we also allow to resolve with a native plugin?
 
 ## Core api

@@ -69,6 +69,20 @@ pub fn resolver<'a>(
     let referrer_str = module_map::get_absolute_path(referrer.get_identity_hash());
     let specifier_path = get_specifier_path(specifier_str, referrer_str);
 
+
+
+
+
+let result = eval(scope, context, "typeof coreModuleLoader === 'function' && coreModuleLoader()").unwrap();
+let result = result.to_string(scope).unwrap();
+println!("coreModuleLoader: {}", result.to_rust_string_lossy(scope));
+// assert!(result.is_number());
+// let expected = v8::Number::new(scope, 10.);
+// assert!(result.strict_equals(expected.into()));
+
+
+
+
     // println!("specifier_path {:?}", specifier_path);
     let module = compile::compile_file(scope, &specifier_path).unwrap();
     Some(scope.escape(module))
@@ -83,3 +97,19 @@ fn get_specifier_path<'a>(specifier_str: String, referrer_str: String) -> String
         .display()
         .to_string()
 }
+
+
+
+// just for testing
+fn eval<'sc>(
+    scope: &mut impl v8::ToLocal<'sc>,
+    context: v8::Local<v8::Context>,
+    code: &str,
+  ) -> Option<v8::Local<'sc, v8::Value>> {
+    let mut hs = v8::EscapableHandleScope::new(scope);
+    let scope = hs.enter();
+    let source = v8::String::new(scope, code).unwrap();
+    let mut script = v8::Script::compile(scope, context, source, None).unwrap();
+    let r = script.run(scope, context);
+    r.map(|v| scope.escape(v))
+  }
