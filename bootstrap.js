@@ -1,7 +1,7 @@
 import "./bootchild.js";
 import "./bootchild.js";
 
-setModuleLoader();
+// setModuleLoader();
 
 export function coreModuleLoader() {
   print(`call "coreModuleLoader"\n`);
@@ -22,4 +22,9 @@ export let coreYo = 123;
 
 import("./bootchild.js").then(({ child }) => {
   print(`dyn import done ${ child() }\n`);
+});
+
+
+import("./bootchild.js").then(({ child }) => {
+  print(`dyn2 import done ${ child() }\n`);
 });

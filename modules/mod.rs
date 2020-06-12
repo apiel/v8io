@@ -2,8 +2,8 @@ use rusty_v8 as v8;
 use std::path::Path;
 
 pub mod compile;
+pub mod custom_module_loader;
 pub mod module_map;
-mod custom_module_loader;
 
 pub extern "C" fn dynamic_import_cb(
     context: v8::Local<v8::Context>,
@@ -67,28 +67,15 @@ pub fn resolver<'a>(
     let scope = hs.enter();
     let specifier_str = specifier.to_rust_string_lossy(scope);
     let referrer_str = module_map::get_absolute_path(referrer.get_identity_hash());
+
+    custom_module_loader::get_specifier_path(
+        scope,
+        context,
+        specifier_str.clone(),
+        referrer_str.clone(),
+    );
+
     let specifier_path = get_specifier_path(specifier_str, referrer_str);
-
-
-
-
-// // let value = eval(scope, context, "() => 0").unwrap();
-// // assert!(value.is_function());
-// let result = eval(scope, context, "typeof coreModuleLoader === 'function' && coreModuleLoader()").unwrap();
-// let result = result.to_string(scope).unwrap();
-// println!("coreModuleLoader: {}", result.to_rust_string_lossy(scope));
-// let result = eval(scope, context, "typeof coreYo").unwrap();
-// let result = result.to_string(scope).unwrap();
-// println!("coreYo: {}", result.to_rust_string_lossy(scope));
-
-let source = v8::String::new(scope, "typeof coreModuleLoader").unwrap();
-let mut script = v8::Script::compile(scope, context, source, None).unwrap();
-let result = script.run(scope, context).unwrap();
-let result = result.to_string(scope).unwrap();
-println!("resolver: {}", result.to_rust_string_lossy(scope));
-
-
-
 
     // println!("specifier_path {:?}", specifier_path);
     let module = compile::compile_file(scope, &specifier_path).unwrap();
@@ -104,19 +91,3 @@ fn get_specifier_path<'a>(specifier_str: String, referrer_str: String) -> String
         .display()
         .to_string()
 }
-
-
-
-// just for testing
-pub fn eval<'sc>(
-    scope: &mut impl v8::ToLocal<'sc>,
-    context: v8::Local<v8::Context>,
-    code: &str,
-  ) -> Option<v8::Local<'sc, v8::Value>> {
-    let mut hs = v8::EscapableHandleScope::new(scope);
-    let scope = hs.enter();
-    let source = v8::String::new(scope, code).unwrap();
-    let mut script = v8::Script::compile(scope, context, source, None).unwrap();
-    let r = script.run(scope, context);
-    r.map(|v| scope.escape(v))
-  }

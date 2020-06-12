@@ -20,46 +20,13 @@ pub fn main() {
   let mut cs = v8::ContextScope::new(scope, context);
   let scope = cs.enter();
 
-// let source = v8::String::new(scope, "function coreModuleLoader() {}").unwrap();
-// let mut script = v8::Script::compile(scope, context, source, None).unwrap();
-// let result = script.run(scope, context).unwrap();
-
+  modules::custom_module_loader::init_module_loader(scope, context);
 
   let file = get_bootstrap_file();
   let mut module = modules::compile::compile_file(scope, file.clone().as_ref()).unwrap();
 
   let _result = module.instantiate_module(context, modules::resolver);
   let _result = module.evaluate(scope, context);
-
-  // // for testing
-  // let result = modules::eval(scope, context, "typeof coreModuleLoader === 'function' && coreModuleLoader()").unwrap();
-  // let result = result.to_string(scope).unwrap();
-  // println!("coreModuleLoader: {}", result.to_rust_string_lossy(scope));
-  // let result = modules::eval(scope, context, "typeof coreYo").unwrap();
-  // let result = result.to_string(scope).unwrap();
-  // println!("coreYo: {}", result.to_rust_string_lossy(scope));
-
-  // let global = v8::Global::new_from(scope, local);
-  // maybe create_message_argument_lifetimes in test_api
-  // context.global(scope);
-
-  // let item_name = v8::String::new(scope, "coreYo").unwrap();
-  // let res = context.global(scope).get(scope, context, item_name.into());
-  // let item_name = v8::String::new(scope, "coreModuleLoader").unwrap();
-  // let res = context.global(scope).get(scope, context, item_name.into());
-  // assert!(res.into().is_function());
-  // res.into();
-
-  // let source = v8::String::new(scope, "function coreModuleLoader() {}").unwrap();
-  // let mut script = v8::Script::compile(scope, context, source, None).unwrap();
-  // let result = script.run(scope, context).unwrap();
-
-  // let source = v8::String::new(scope, "typeof coreModuleLoader").unwrap();
-  // let mut script = v8::Script::compile(scope, context, source, None).unwrap();
-  // let result = script.run(scope, context).unwrap();
-  // let result = result.to_string(scope).unwrap();
-  // println!("res: {}", result.to_rust_string_lossy(scope));
-
 }
 
 fn get_bootstrap_file() -> std::string::String {
