@@ -32,9 +32,10 @@ Unlike dynamic import in Deno or `require()` in Node.js, the module will always 
 
 To define your own loader, create a file called `module_loader.js`, in the same folder as the v8io executable, as we did for `bootstrap.js`. We can as well use an environment variable `V8IO_MODULE_LOADER` to provide the absolute path of the module loader script.
 
-This script should contain a function `coreModuleLoader(specifier: string, referrer: string) => string | undefined` and return a string to the path of the module to load. If something else is returned, then it will fallback to the default module loader.
+This script should contain a function `coreModuleLoader(specifier: string, referrer: string) => string | [string, string] | undefined` and return a string to the absolute path of the module to load. We can as well return an array, where the first element is the path of the module and the second element is the source code of the module. If something else is returned, then it will fallback to the default module loader.
 
 ```js
+// example return a string
 function coreModuleLoader(specifier, referrer) {
   return (
     !specifier.endsWith(".js") &&
@@ -43,7 +44,20 @@ function coreModuleLoader(specifier, referrer) {
 }
 ```
 
-> ToDo: instead to return a string to the file, return a string with the code. Or could be both?
+It would add `.js` to any path without extension, `import "./hello"` would become `/absolute/path/hello.js`.
+
+```js
+// example return an array
+function coreModuleLoader(specifier, referrer) {
+  if (specifier === "array_example") {
+    return ["/array_example.js", 'print("this is array_example code.\\n");'];
+  }
+}
+```
+
+It would then display `this is array_example code.` if we have `import "array_example";` in our code.
+
+> **Note**: It might be important to provide the right path to the module, because child module might use it as referrer.
 
 ## Core api
 
