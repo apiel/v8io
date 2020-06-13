@@ -6,7 +6,7 @@ Ryan Dahl created Node.js and about 10 years later Deno. Deno is kind of improvm
 
 V8io is very basic and reduce to the strict minimum to be customizable. V8io doesn't get any parameter, when it is instaciated, it will always try to run `./boostrap.js` that is located next to his executable installation folder (not where you instanciate it). Of course, is it not that's strict, we can as well use an environment variable `V8IO_BOOSTRAP` to provide the absolute path of the bootstrap script.
 
-This boostrap is intented to setup the working environment. In this file, we will decide which plugin to load, how to resolve the modules and will be as well the place to parse the params passed during instantiation. We will then decide if we run an application or if we do some devops operations like installing a module.
+This boostrap is intented to setup the working environment. In this file, we will decide which plugin to load and we will parse the params passed during instantiation. We will then decide if we run an application or if we do some devops operations like installing a module.
 
 ## Import module
 
