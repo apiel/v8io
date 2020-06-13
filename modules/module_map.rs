@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::sync::Mutex;
+use crate::modules::module;
 
 #[derive(Clone)]
 pub struct ModuleItem {
@@ -10,7 +11,12 @@ lazy_static! {
     static ref MODULE_MAP: Mutex<HashMap<i32, ModuleItem>> = Mutex::new(HashMap::new());
 }
 
-pub fn insert(identity_hash: i32, module_item: ModuleItem) {
+pub fn insert(identity_hash: i32, module: module::Module) {
+    // should we insert the whole module?
+    // but then, it would use memory for nothing
+    let module_item = ModuleItem {
+        absolute_path: module.absolute_path
+    };
     MODULE_MAP
         .lock()
         .unwrap()
