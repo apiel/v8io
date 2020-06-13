@@ -36,10 +36,10 @@ This script should contain a function `coreModuleLoader(specifier: string, refer
 
 ```js
 function coreModuleLoader(specifier, referrer) {
-  const ret =
+  return (
     !specifier.endsWith(".js") &&
-    `${referrer.substr(0, referrer.lastIndexOf("/") - 1)}${specifier}.js`;
-  return ret;
+    `${referrer.substr(0, referrer.lastIndexOf("/") - 1)}${specifier}.js`
+  );
 }
 ```
 
@@ -58,5 +58,6 @@ Only few native functions are available by default. All other native functions m
 To provide more native feature to v8io, we need to use plugins (shared library .dll, .so, etc).
 
 To be implemented:
- - `usePlugin(__driname + 'fs.so', { some: 'variables'})` 
- - plugin should return a list of available function - plugin should return a type definition - `freezePlugins()` would not allow to load plugin anymore
+
+- `usePlugin(__driname + 'fs.so', { some: 'variables'})`
+- plugin should return a list of available function - plugin should return a type definition - `freezePlugins()` would not allow to load plugin anymore
