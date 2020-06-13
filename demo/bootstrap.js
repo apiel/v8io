@@ -1,5 +1,6 @@
 import "./bootchild.js";
 import "./bootchild.js";
+import "try_array";
 
 // setModuleLoader();
 

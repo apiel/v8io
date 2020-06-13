@@ -1,6 +1,9 @@
 let yo = 0; // to demonstrate that it keep memory
 
 function coreModuleLoader(specifier, referrer) {
+  if (specifier === 'try_array') {
+    return ['/specifier.js', 'print("this is try_array code.\\n");']
+  }
   // print(`coreModuleLoader (${++yo}) ${specifier} ${referrer}\n`);
   const ret =
     !specifier.endsWith(".js") &&
