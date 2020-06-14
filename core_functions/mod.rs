@@ -1,6 +1,7 @@
 use rusty_v8 as v8;
 
 mod print;
+mod plugin;
 // mod set_module_loader;
 
 pub fn init<'sc>(
@@ -21,6 +22,10 @@ pub fn init<'sc>(
 
     let function_templ = v8::FunctionTemplate::new(scope, print::eprint);
     let name = v8::String::new(scope, "eprint").unwrap();
+    object_templ.set(name.into(), function_templ.into());
+
+    let function_templ = v8::FunctionTemplate::new(scope, plugin::core_instantiate);
+    let name = v8::String::new(scope, "coreInstantiate").unwrap();
     object_templ.set(name.into(), function_templ.into());
 
     // let function_templ = v8::FunctionTemplate::new(scope, set_module_loader::set_module_loader);

@@ -5,7 +5,7 @@ pub mod custom_module_loader;
 pub mod default_loader;
 pub mod module;
 pub mod module_map;
-mod plugin_loader;
+pub mod plugin_loader;
 
 pub extern "C" fn dynamic_import_cb(
     context: v8::Local<v8::Context>,
