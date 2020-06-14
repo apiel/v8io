@@ -12,10 +12,10 @@ pub fn core_instantiate(
     let obj_params = args.get(1);
 
     if let Some(name) = obj_name.to_string(scope) {
-        let params_str: Option<String> = match obj_params.to_string(scope) {
-            Some(s) => Some(s.to_rust_string_lossy(scope)),
-            None => None,
-        };
+        let params_str: String = obj_params
+            .to_string(scope)
+            .unwrap()
+            .to_rust_string_lossy(scope);
         plugin_loader::instantiate(name.to_rust_string_lossy(scope), params_str);
     }
 }

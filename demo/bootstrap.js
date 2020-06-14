@@ -12,7 +12,7 @@ export function coreModuleLoader() {
 }
 export let coreYo = 123;
 
-coreInstantiate("adder");
+coreInstantiate("adder", "hello");
 
 // async function yo2() {
 //   print("hello" + "world" + Math.random() + "\n");

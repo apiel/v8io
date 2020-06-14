@@ -6,9 +6,7 @@ use std::sync::Mutex;
 
 extern crate libloading as lib;
 
-// type RunFunc = unsafe fn(String) -> isize;
-// type RunFunc = unsafe fn(Option<String>) -> isize;
-type RunFunc = unsafe fn() -> isize;
+type RunFunc = unsafe fn(&str) -> isize;
 type GetNameFunc = unsafe fn() -> String;
 type GetCodeFunc = unsafe fn() -> String;
 
@@ -20,14 +18,13 @@ pub fn insert(name: String, plugin: lib::Library) {
     PLUGIN_MAP.lock().unwrap().insert(name, plugin);
 }
 
-pub fn instantiate(name: String, params_str: Option<String>) {
+pub fn instantiate(name: String, params_str: String) {
     let plugin_map = PLUGIN_MAP.lock().unwrap();
     let plugin = plugin_map.get(&name);
     if let Some(item) = plugin {
         unsafe {
             let run: lib::Symbol<RunFunc> = item.get(b"run").unwrap();
-            // println!("before ({:?})::{:?}", name, params_str);
-            let answer = run();
+            let answer = run(params_str.as_ref());
             println!("({:?})::{:?}:: 1 + 2 = {}", name, params_str, answer);
         }
     }
