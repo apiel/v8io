@@ -1,10 +1,11 @@
 use rusty_v8 as v8;
-use std::path::Path;
 
 pub mod compile;
 pub mod custom_module_loader;
+pub mod default_loader;
 pub mod module;
 pub mod module_map;
+mod plugin_loader;
 
 pub extern "C" fn dynamic_import_cb(
     context: v8::Local<v8::Context>,
@@ -68,9 +69,26 @@ pub fn resolver<'a>(
     let specifier_str = specifier.to_rust_string_lossy(scope);
     let referrer_str = module_map::get_absolute_path(referrer.get_identity_hash());
 
-    let module = load_module(scope, context, specifier_str, referrer_str);
+    let module = load_module_or_plugin(scope, context, specifier_str, referrer_str);
     let compiled_module = compile::compile_module(scope, module).unwrap();
     Some(scope.escape(compiled_module))
+}
+
+fn load_module_or_plugin<'sc>(
+    scope: &mut impl v8::ToLocal<'sc>,
+    context: v8::Local<v8::Context>,
+    specifier_str: String,
+    referrer_str: String,
+) -> module::Module {
+    if specifier_str.ends_with(".so") || specifier_str.ends_with(".dll") {
+        return plugin_loader::load_plugin(
+            scope,
+            context,
+            specifier_str.clone(),
+            referrer_str.clone(),
+        );
+    }
+    load_module(scope, context, specifier_str, referrer_str)
 }
 
 fn load_module<'sc>(
@@ -86,7 +104,7 @@ fn load_module<'sc>(
         referrer_str.clone(),
     ) {
         Some(s) => s,
-        None => get_default_module_resolver(specifier_str, referrer_str),
+        None => default_loader::get_module(specifier_str, referrer_str),
     };
     let absolute_path = module_to_load.absolute_path;
     let code = match module_to_load.code {
@@ -99,21 +117,5 @@ fn load_module<'sc>(
     module::Module {
         absolute_path,
         code,
-    }
-}
-
-fn get_default_module_resolver(
-    specifier_str: String,
-    referrer_str: String,
-) -> module::ModuleToLoad {
-    module::ModuleToLoad {
-        absolute_path: Path::new(&referrer_str)
-            .parent()
-            .unwrap()
-            .join(specifier_str)
-            .as_path()
-            .display()
-            .to_string(),
-        code: None,
     }
 }

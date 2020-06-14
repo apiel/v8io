@@ -17,3 +17,4 @@ path = "main.rs"
 [dependencies]
 rusty_v8 = "0.5.0"
 lazy_static = "1.4.0"
+libloading = "0.5.0"

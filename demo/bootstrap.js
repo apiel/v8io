@@ -1,3 +1,5 @@
+import "../../plugins/demo/libadder.so";
+
 import "./bootchild.js";
 import "./bootchild.js";
 import "try_array";
@@ -22,10 +24,9 @@ export let coreYo = 123;
 // print(`hello yeah ${yo()}\n`);
 
 import("./bootchild.js").then(({ child }) => {
-  print(`dyn import done ${ child() }\n`);
+  print(`dyn import done ${child()}\n`);
 });
 
-
 import("./bootchild.js").then(({ child }) => {
-  print(`dyn2 import done ${ child() }\n`);
+  print(`dyn2 import done ${child()}\n`);
 });

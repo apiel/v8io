@@ -73,5 +73,5 @@ To provide more native feature to v8io, we need to use plugins (shared library .
 
 To be implemented:
 
-- `usePlugin(__driname + 'fs.so', { some: 'variables'})`
+- ~~`usePlugin(__driname + 'fs.so', { some: 'variables'})`~~ -> `import "./plugin.so";`
 - plugin should return a list of available function - plugin should return a type definition - `freezePlugins()` would not allow to load plugin anymore
