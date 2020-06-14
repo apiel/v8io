@@ -18,7 +18,7 @@ pub fn insert(name: String, plugin: lib::Library) {
     PLUGIN_MAP.lock().unwrap().insert(name, plugin);
 }
 
-pub fn instantiate(name: String) {
+pub fn instantiate(name: String, args: v8::Local<v8::Value>) {
     let plugin_map = PLUGIN_MAP.lock().unwrap();
     let plugin = plugin_map.get(&name);
     if let Some(item) = plugin {
