@@ -1,4 +1,4 @@
-import "../../plugins/demo/libadder.so";
+import "../../plugins/demo/target/debug/libadder.so";
 
 import "./bootchild.js";
 import "./bootchild.js";

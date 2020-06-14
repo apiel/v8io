@@ -9,9 +9,13 @@ pub fn core_instantiate(
 ) {
     assert!(args.length() == 1 || args.length() == 2);
     let obj_name = args.get(0);
-    let obj_args = args.get(1);
+    let obj_params = args.get(1);
 
     if let Some(name) = obj_name.to_string(scope) {
-        plugin_loader::instantiate(name.to_rust_string_lossy(scope), obj_args);
+        let params_str: Option<String> = match obj_params.to_string(scope) {
+            Some(s) => Some(s.to_rust_string_lossy(scope)),
+            None => None,
+        };
+        plugin_loader::instantiate(name.to_rust_string_lossy(scope), params_str);
     }
 }
