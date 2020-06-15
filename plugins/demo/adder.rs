@@ -10,9 +10,9 @@ pub extern "C" fn get_code() -> String {
 }
 
 #[no_mangle]
-pub extern "C" fn run(params_str: &str) -> isize {
+pub extern "C" fn run(params_str: &str) -> Option<String> {
     println!("run {:?}", params_str);
-    4
+    Some("response yeah".to_string())
 }
 
 // get_types ?

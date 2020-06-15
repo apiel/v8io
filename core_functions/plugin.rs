@@ -5,7 +5,7 @@ use crate::modules::plugin_loader;
 pub fn core_instantiate(
     scope: v8::FunctionCallbackScope,
     args: v8::FunctionCallbackArguments,
-    _rv: v8::ReturnValue,
+    mut rv: v8::ReturnValue,
 ) {
     assert!(args.length() == 1 || args.length() == 2);
     let obj_name = args.get(0);
@@ -16,6 +16,10 @@ pub fn core_instantiate(
             .to_string(scope)
             .unwrap()
             .to_rust_string_lossy(scope);
-        plugin_loader::instantiate(name.to_rust_string_lossy(scope), params_str);
+        let response = plugin_loader::instantiate(name.to_rust_string_lossy(scope), params_str);
+
+        if let Some(res) = response {
+            rv.set(v8::String::new(scope, &res).unwrap().into());
+        }
     }
 }
