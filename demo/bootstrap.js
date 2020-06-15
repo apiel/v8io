@@ -13,7 +13,7 @@ export function coreModuleLoader() {
 export let coreYo = 123;
 
 const res = coreInstantiate("adder", "hello");
-print(`coreInstantiate res ${res}\n`);
+print(`coreInstantiate res: ${res}\n`);
 
 // async function yo2() {
 //   print("hello" + "world" + Math.random() + "\n");
@@ -26,6 +26,9 @@ print(`coreInstantiate res ${res}\n`);
 
 async function callYo() {
   print(`hello yeah ${await coreTest()}\n`);
+
+  const res2 = await coreInstantiateAsync("adder", "hello");
+  print(`coreInstantiateAsync res: ${res2}\n`);
 }
 callYo();
 

@@ -30,6 +30,35 @@ pub fn instantiate(name: String, params_str: String) -> Option<String> {
     None
 }
 
+pub fn instantiate_async<'a>(
+    name: String,
+    params_str: String,
+    scope: &mut impl v8::ToLocal<'a>,
+    context: v8::Local<'a, v8::Context>,
+    mut resolver_handle: v8::Global<v8::PromiseResolver>,
+) {
+    let resolver = resolver_handle.get(scope).unwrap();
+    resolver_handle.reset(scope);
+
+    let plugin_map = PLUGIN_MAP.lock().unwrap();
+    let plugin = plugin_map.get(&name);
+    if let Some(item) = plugin {
+        unsafe {
+            let run: lib::Symbol<RunFunc> = item.get(b"run").unwrap();
+            let response = run(params_str.as_ref());
+
+            if let Some(res) = response {
+                let value = v8::String::new(scope, &res).unwrap();
+                resolver.resolve(context, value.into()).unwrap();
+                return;
+            }
+        }
+    }
+    resolver
+        .resolve(context, v8::undefined(scope).into())
+        .unwrap();
+}
+
 pub fn load_plugin<'sc>(
     _scope: &mut impl v8::ToLocal<'sc>,
     _context: v8::Local<v8::Context>,
