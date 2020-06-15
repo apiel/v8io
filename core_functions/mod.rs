@@ -12,8 +12,8 @@ pub fn init<'sc>(
 ) {
     let object_templ = v8::ObjectTemplate::new(scope);
 
-    let function_templ = v8::FunctionTemplate::new(scope, fortytwo_callback);
-    let name = v8::String::new(scope, "yo").unwrap();
+    let function_templ = v8::FunctionTemplate::new(scope, core_test_callback);
+    let name = v8::String::new(scope, "coreTest").unwrap();
     object_templ.set(name.into(), function_templ.into());
 
     let function_templ = v8::FunctionTemplate::new(scope, print::print);
@@ -35,10 +35,26 @@ pub fn init<'sc>(
     (object_templ, scope)
 }
 
-fn fortytwo_callback(
+fn core_test_callback(
     scope: v8::FunctionCallbackScope,
     _: v8::FunctionCallbackArguments,
     mut rv: v8::ReturnValue,
 ) {
-    rv.set(v8::Integer::new(scope, 42).into());
+    let context = scope.get_current_context().unwrap();
+    let resolver = v8::PromiseResolver::new(scope, context).unwrap();
+    let promise = resolver.get_promise(scope);
+
+    let mut resolver_handle = v8::Global::new();
+    resolver_handle.set(scope, resolver);
+    {
+        // let resolver = resolver_handle.get(scope).unwrap();
+        resolver_handle.reset(scope);
+
+        let value = v8::String::new(scope, "test").unwrap();
+        resolver.resolve(context, value.into()).unwrap();
+    }
+
+    rv.set(promise.into());
+
+    // rv.set(v8::Integer::new(scope, 42).into());
 }

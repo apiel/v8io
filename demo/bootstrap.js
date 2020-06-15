@@ -23,7 +23,12 @@ coreInstantiate("adder", "hello");
 // }
 // yo2();
 
-// print(`hello yeah ${yo()}\n`);
+async function callYo() {
+  print(`hello yeah ${await coreTest()}\n`);
+}
+callYo();
+
+// print(`hello yeah ${coreTest()}\n`);
 
 import("./bootchild.js").then(({ child }) => {
   print(`dyn import done ${child()}\n`);
