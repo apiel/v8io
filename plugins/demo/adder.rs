@@ -18,11 +18,13 @@ pub struct Cb {
     pub value: String,
 }
 impl Cb {
-    pub fn callback(&mut self, _: Option<String>) {}
+    pub fn callback(&mut self, _: Option<String>) {
+        println!("wasist");
+    }
 }
 
 #[no_mangle]
-pub extern "C" fn run_async(params_str: &str, cb: *mut Cb) {
+pub extern "C" fn run_async(params_str: &str, cb: &mut Cb) {
     println!("run_async: call run_async in adder");
     // if !cb.is_null() {
         unsafe {
