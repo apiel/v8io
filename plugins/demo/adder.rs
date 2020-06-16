@@ -14,32 +14,65 @@ pub extern "C" fn run(params_str: &str) -> Option<String> {
     Some("response yeah".to_string())
 }
 
-pub struct Cb {
-    pub value: String,
-}
-impl Cb {
-    pub fn callback(&mut self, _: Option<String>) {
-        println!("wasist");
-    }
-}
+// #[no_mangle]
+// pub extern "C" async fn run_async(params_str: &str) {
+// println!("run_async: call run_async in adder");
+// if !cb.is_null() {
+// unsafe {
+//     println!("run_async: enter unsafe");
 
-#[no_mangle]
-pub extern "C" fn run_async(params_str: &str, cb: &mut Cb) {
-    println!("run_async: call run_async in adder");
-    // if !cb.is_null() {
-        unsafe {
-            println!("run_async: enter unsafe");
+//     let cb = &mut *cb;
+//     println!("run_async: run {:?}", params_str);
+//     // println!("run_async: value {:?}", cb.value);
+//     cb(Some("response yeah".to_string()));
+//     println!("run_async: done");
+// }
+// }
+// }
 
-            let cb = &mut *cb;
-            println!("run_async: run {:?}", params_str);
-            println!("run_async: value {:?}", cb.value);
-            cb.callback(Some("response yeah".to_string()));
-            println!("run_async: done");
-        }
-    // }
-}
+// #[no_mangle]
+// pub extern "C" fn run_async(params_str: &str, cb: &mut Any) {
+//     println!("run_async: call run_async in adder");
+//     // if !cb.is_null() {
+//         unsafe {
+//             println!("run_async: enter unsafe");
 
-// // pub extern "C" fn run_async(params_str: &str, cb: impl Fn(Option<String>))
+//             let cb = &mut *cb;
+//             println!("run_async: run {:?}", params_str);
+//             // println!("run_async: value {:?}", cb.value);
+//             cb(Some("response yeah".to_string()));
+//             println!("run_async: done");
+//         }
+//     // }
+// }
+
+// pub struct Cb {
+//     pub value: String,
+// }
+// impl Cb {
+//     pub fn callback(&mut self, _: Option<String>) {
+//         println!("wasist");
+//     }
+// }
+
+// #[no_mangle]
+// pub extern "C" fn run_async(params_str: &str, cb: &mut Cb) {
+//     println!("run_async: call run_async in adder");
+//     // if !cb.is_null() {
+//         unsafe {
+//             println!("run_async: enter unsafe");
+
+//             let cb = &mut *cb;
+//             println!("run_async: run {:?}", params_str);
+//             println!("run_async: value {:?}", cb.value);
+//             cb.callback(Some("response yeah".to_string()));
+//             println!("run_async: done");
+//         }
+//     // }
+// }
+
+// pub extern "C" fn run_async(params_str: &str, cb: impl Fn(Option<String>)) {
+
 // #[no_mangle]
 // pub extern "C" fn run_async(params_str: &str, cb: unsafe extern "C" fn(Option<String>)) {
 //     println!("run {:?}", params_str);
@@ -47,5 +80,12 @@ pub extern "C" fn run_async(params_str: &str, cb: &mut Cb) {
 //         cb(Some("response yeah".to_string()));
 //     }
 // }
+
+#[no_mangle]
+pub extern "C" fn run_async(params_str: &str, cb: Box<dyn FnMut(Option<String>)>) {
+    println!("run {:?}", params_str);
+    let mut cb = cb;
+    cb(Some("response yeah".to_string()));
+}
 
 // get_types ?

@@ -11,3 +11,4 @@ path = "adder.rs"
 crate-type = ["cdylib"]
 
 [dependencies]
+# futures = "0.3"

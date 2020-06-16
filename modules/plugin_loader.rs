@@ -6,8 +6,9 @@ use std::sync::Mutex;
 
 extern crate libloading as lib;
 
+type RunAsyncFunc = unsafe fn(&str, cb: Box<dyn FnMut(Option<String>)>);
 // type RunAsyncFunc = unsafe fn(&str, unsafe extern "C" fn(Option<String>));
-type RunAsyncFunc = unsafe fn(&str, &mut Cb);
+// type RunAsyncFunc = unsafe fn(&str, &mut Cb);
 type RunFunc = unsafe fn(&str) -> Option<String>;
 type GetNameFunc = unsafe fn() -> String;
 type GetCodeFunc = unsafe fn() -> String;
@@ -62,21 +63,25 @@ pub fn instantiate_async<'a>(
             // // let cb = |res: Option<String>| {
             // //     println!("instantiate_async cb {:?}", res);
             // // };
-            // let runAsync: lib::Symbol<RunAsyncFunc> = item.get(b"runAsync").unwrap();
-            // unsafe {
-            //     fn cb (res: Option<String>) {
-            //         println!("instantiate_async cb {:?}", res);
-            //     }
-            //     runAsync(params_str.as_ref(), cb);
-            // }
             let run_async: lib::Symbol<RunAsyncFunc> = item.get(b"run_async").unwrap();
-            let mut cb = Cb::new("my value".to_string());
-            cb.callback(Some("abc".to_string()));
-            run_async(params_str.as_ref(), &mut cb);
-            // // let ptr = Box::into_raw(Box::new(cb));
-            // let ptr = &mut *Box::new(cb);
+            unsafe {
+                fn cb (res: Option<String>) {
+                    println!("instantiate_async cb {:?}", res);
+                }
+                // run_async(params_str.as_ref(), cb);
+                // let mut ptr = &mut * Box::new(cb);
+                // let ptr = Box::into_raw(Box::new(cb));
+                // run_async(params_str.as_ref(), ptr);
+                run_async(params_str.as_ref(), Box::new(cb));
+            }
+            // let run_async: lib::Symbol<RunAsyncFunc> = item.get(b"run_async").unwrap();
+            // let mut cb = Cb::new("my value".to_string());
+            // cb.callback(Some("abc".to_string()));
+            // run_async(params_str.as_ref(), &mut cb);
+            // // // let ptr = Box::into_raw(Box::new(cb));
+            // // let ptr = &mut *Box::new(cb);
 
-            // run_async(params_str.as_ref(), ptr);
+            // // run_async(params_str.as_ref(), ptr);
 
             let run: lib::Symbol<RunFunc> = item.get(b"run").unwrap();
             let response = run(params_str.as_ref());
