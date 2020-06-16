@@ -48,8 +48,17 @@ pub fn instantiate_async<'a>(
     if let Some(item) = plugin {
         unsafe {
             let run_async: lib::Symbol<RunAsyncFunc> = item.get(b"run_async").unwrap();
-            let cb = |res: Option<String>| {
-                println!("closure instantiate_async cb {:?}", res);
+            let cb = |response: Option<String>| {
+                // ToDo find how to call resolver
+                println!("closure instantiate_async cb {:?}", response.clone());
+                // if let Some(res) = response {
+                //     let value = v8::String::new(scope, &res).unwrap();
+                //     resolver.resolve(context, value.into()).unwrap();
+                // } else {
+                //     resolver
+                //     .resolve(context, v8::undefined(scope).into())
+                //     .unwrap();
+                // }
             };
             // fn cb(res: Option<String>) {
             //     println!("instantiate_async cb {:?}", res);
@@ -62,13 +71,17 @@ pub fn instantiate_async<'a>(
             if let Some(res) = response {
                 let value = v8::String::new(scope, &res).unwrap();
                 resolver.resolve(context, value.into()).unwrap();
-                return;
+            } else {
+                resolver
+                    .resolve(context, v8::undefined(scope).into())
+                    .unwrap();
             }
         }
+    } else {
+        resolver
+            .resolve(context, v8::undefined(scope).into())
+            .unwrap();
     }
-    resolver
-        .resolve(context, v8::undefined(scope).into())
-        .unwrap();
 }
 
 pub fn load_plugin<'sc>(
