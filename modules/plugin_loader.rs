@@ -7,8 +7,6 @@ use std::sync::Mutex;
 extern crate libloading as lib;
 
 type RunAsyncFunc = unsafe fn(&str, cb: Box<dyn FnMut(Option<String>)>);
-// type RunAsyncFunc = unsafe fn(&str, unsafe extern "C" fn(Option<String>));
-// type RunAsyncFunc = unsafe fn(&str, &mut Cb);
 type RunFunc = unsafe fn(&str) -> Option<String>;
 type GetNameFunc = unsafe fn() -> String;
 type GetCodeFunc = unsafe fn() -> String;
