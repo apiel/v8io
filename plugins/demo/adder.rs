@@ -1,21 +1,21 @@
 #[no_mangle]
-pub extern "C" fn get_name() -> String {
+fn get_name() -> String {
     "adder".to_string()
 }
 
 #[no_mangle]
-pub extern "C" fn get_code() -> String {
+fn get_code() -> String {
     "print('adder was initialized\\n');".to_string()
 }
 
 #[no_mangle]
-pub extern "C" fn run(params_str: &str) -> Option<String> {
+fn run(params_str: &str) -> Option<String> {
     println!("run {:?}", params_str);
     Some("response yeah".to_string())
 }
 
 #[no_mangle]
-pub extern "C" fn run_async(params_str: &str, cb: Box<dyn FnMut(Option<String>)>) {
+fn run_async(params_str: &str, cb: Box<dyn FnMut(Option<String>)>) {
     println!("run {:?}", params_str);
     let mut cb = cb;
     cb(Some("response yeah".to_string()));
