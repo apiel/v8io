@@ -40,45 +40,27 @@ pub fn instantiate_async<'a>(
 ) {
     let resolver = resolver_handle.get(scope).unwrap();
     resolver_handle.reset(scope);
+    let cb = |response: Option<String>| {
+        println!("closure instantiate_async cb {:?}", response.clone());
+        // if let Some(res) = response {
+        //     let value = v8::String::new(scope, &res).unwrap();
+        //     resolver.resolve(context, value.into()).unwrap();
+        // } else {
+        //     resolver
+        //         .resolve(context, v8::undefined(scope).into())
+        //         .unwrap();
+        // }
+    };
 
     let plugin_map = PLUGIN_MAP.lock().unwrap();
     let plugin = plugin_map.get(&name);
     if let Some(item) = plugin {
         unsafe {
             let run_async: lib::Symbol<RunAsyncFunc> = item.get(b"run_async").unwrap();
-            let cb = |response: Option<String>| {
-                // ToDo find how to call resolver
-                println!("closure instantiate_async cb {:?}", response.clone());
-                // if let Some(res) = response {
-                //     let value = v8::String::new(scope, &res).unwrap();
-                //     resolver.resolve(context, value.into()).unwrap();
-                // } else {
-                //     resolver
-                //     .resolve(context, v8::undefined(scope).into())
-                //     .unwrap();
-                // }
-            };
-            // fn cb(res: Option<String>) {
-            //     println!("instantiate_async cb {:?}", res);
-            // }
             run_async(params_str.as_ref(), Box::new(cb));
-
-            let run: lib::Symbol<RunFunc> = item.get(b"run").unwrap();
-            let response = run(params_str.as_ref());
-
-            if let Some(res) = response {
-                let value = v8::String::new(scope, &res).unwrap();
-                resolver.resolve(context, value.into()).unwrap();
-            } else {
-                resolver
-                    .resolve(context, v8::undefined(scope).into())
-                    .unwrap();
-            }
         }
     } else {
-        resolver
-            .resolve(context, v8::undefined(scope).into())
-            .unwrap();
+        cb(None);
     }
 }
 
