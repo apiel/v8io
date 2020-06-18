@@ -69,9 +69,58 @@ Only few native functions are available by default. All other native functions m
 
 ## Plugin
 
-To provide more native feature to v8io, we need to use plugins (shared library .dll, .so, etc).
+To provide more native feature to v8io, we use plugins (shared library .dll, .so, etc). In your bootstrap file, import plugins as you would import a JS module: `import "./my_plugin.so"`. Finally when all plugins as been imported, call `import "core_freeze_plugins"`, so no more plugins can be imported by third party module.
 
-To be implemented:
+```js
+import "./core/libfs.so";
+import "./core/libpath.so";
+import "core_freeze_plugins";
 
-- ~~`usePlugin(__driname + 'fs.so', { some: 'variables'})`~~ -> `import "./plugin.so";`
-- plugin should return a list of available function - plugin should return a type definition - `freezePlugins()` would not allow to load plugin anymore
+// ... then bootstrap
+```
+
+### Build your own plugin
+
+In this example, we are building a plugin where we can call `hello('world')` returning `some data to return` and writing as output `run: world`:
+
+```rs
+// here we define the name of the plugin, so we can call it with coreInstantiate('hello')
+#[no_mangle]
+fn get_name() -> String {
+    "hello".to_string()
+}
+
+// here is some JavaScript code to execute to initialize the plugin
+#[no_mangle]
+fn get_code() -> String {
+    "globalThis.hello = (value) => coreInstantiate('hello', value);".to_string()
+}
+
+// here is a synchrone function
+#[no_mangle]
+fn run(params_str: &str) -> Option<String> {
+    println!("run {:?}", params_str);
+    // can only return a string
+    Some("some data to return".to_string())
+}
+
+// here is a asynchrone function
+#[no_mangle]
+fn run_async(params_str: &str, cb: Box<dyn FnMut(Option<String>)>) {
+    println!("run {:?}", params_str);
+    let mut cb = cb;
+    // can only return a string
+    cb(Some("some data to return".to_string()));
+}
+```
+
+The cargo file:
+```toml
+[package]
+name = "hello"
+edition = "2018"
+
+[lib]
+path = "hello.rs"
+crate-type = ["cdylib"]
+```

@@ -80,7 +80,14 @@ fn load_module_or_plugin<'sc>(
     specifier_str: String,
     referrer_str: String,
 ) -> module::Module {
-    if specifier_str.ends_with(".so") || specifier_str.ends_with(".dll") {
+    if specifier_str == "core_freeze_plugins" {
+        return plugin_loader::freeze_plugins(
+            scope,
+            context,
+            specifier_str.clone(),
+            referrer_str.clone(),
+        );
+    } else if specifier_str.ends_with(".so") || specifier_str.ends_with(".dll") {
         return plugin_loader::load_plugin(
             scope,
             context,

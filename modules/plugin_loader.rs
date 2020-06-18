@@ -6,7 +6,6 @@ use std::sync::Mutex;
 
 extern crate libloading as lib;
 
-// type RunAsyncFunc = unsafe fn(&str, cb: Box<dyn FnMut(Option<String>)>);
 type RunAsyncFunc<'a> = unsafe fn(&str, cb: Box<dyn FnMut(Option<String>) + 'a>);
 type RunFunc = unsafe fn(&str) -> Option<String>;
 type GetNameFunc = unsafe fn() -> String;
@@ -14,6 +13,12 @@ type GetCodeFunc = unsafe fn() -> String;
 
 lazy_static! {
     static ref PLUGIN_MAP: Mutex<HashMap<String, lib::Library>> = Mutex::new(HashMap::new());
+    static ref PLUGINS_FROZEN: Mutex<bool> = Mutex::new(false);
+}
+
+fn is_frozen() -> bool {
+    let freeze = PLUGINS_FROZEN.lock().unwrap();
+    *freeze == true
 }
 
 pub fn insert(name: String, plugin: lib::Library) {
@@ -73,6 +78,10 @@ pub fn load_plugin<'sc>(
 ) -> module::Module {
     let absolute_path = default_loader::get_module(specifier_str, referrer_str).absolute_path;
 
+    if is_frozen() {
+        panic!("Cannot import plugin after it has been frozen {:?}", absolute_path);
+    }
+
     let plugin = lib::Library::new(absolute_path.clone()).unwrap();
 
     unsafe {
@@ -88,5 +97,21 @@ pub fn load_plugin<'sc>(
             absolute_path,
             code,
         }
+    }
+}
+
+pub fn freeze_plugins<'sc>(
+    _scope: &mut impl v8::ToLocal<'sc>,
+    _context: v8::Local<v8::Context>,
+    specifier_str: String,
+    referrer_str: String,
+) -> module::Module {
+    let mut freeze = PLUGINS_FROZEN.lock().unwrap();
+    *freeze = true;
+
+    let absolute_path = default_loader::get_module(specifier_str, referrer_str).absolute_path;
+    module::Module {
+        absolute_path,
+        code: "".to_string(),
     }
 }

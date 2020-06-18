@@ -5,7 +5,7 @@ fn get_name() -> String {
 
 #[no_mangle]
 fn get_code() -> String {
-    "print('adder was initialized\\n');".to_string()
+    "globalThis.adder = (value) => coreInstantiate('adder', value);".to_string()
 }
 
 #[no_mangle]

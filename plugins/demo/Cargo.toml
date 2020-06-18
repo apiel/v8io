@@ -9,6 +9,3 @@ repository = "https://github.com/apiel/v8io"
 [lib]
 path = "adder.rs"
 crate-type = ["cdylib"]
-
-[dependencies]
-# futures = "0.3"

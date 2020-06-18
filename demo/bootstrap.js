@@ -1,3 +1,4 @@
+// import "core_freeze_plugins";
 import "../../plugins/demo/target/debug/libadder.so";
 
 import "./bootchild.js";
@@ -12,8 +13,11 @@ export function coreModuleLoader() {
 }
 export let coreYo = 123;
 
-const res = coreInstantiate("adder", "hello");
-print(`coreInstantiate res: ${res}\n`);
+// const res = coreInstantiate("adder", "hello");
+// print(`coreInstantiate res: ${res}\n`);
+
+const res = adder("hello");
+print(`adder res: ${res}\n`);
 
 // async function yo2() {
 //   print("hello" + "world" + Math.random() + "\n");
