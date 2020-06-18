@@ -118,6 +118,7 @@ The cargo file:
 ```toml
 [package]
 name = "hello"
+version = "0.0.1"
 edition = "2018"
 
 [lib]
