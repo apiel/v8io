@@ -65,7 +65,7 @@ Only few native functions are available by default. All other native functions m
 
 - Use `print(text: string)` only for the primary output of your program.
 - Use `eprint(text: string)` only for error and progress messages.
-- Use `getArgs()` to be implemented.
+- Use `args()` to returns the arguments which this program was started with (normally passed via the command line).
 
 ## Plugin
 

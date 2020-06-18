@@ -7,6 +7,8 @@ import "try_array";
 
 // setModuleLoader();
 
+print(`args ${JSON.stringify(args())}\n`);
+
 export function coreModuleLoader() {
   print(`call "coreModuleLoader"\n`);
   return 10;
