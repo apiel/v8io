@@ -6,7 +6,8 @@ use std::sync::Mutex;
 
 extern crate libloading as lib;
 
-type RunAsyncFunc = unsafe fn(&str, cb: Box<dyn FnMut(Option<String>)>);
+// type RunAsyncFunc = unsafe fn(&str, cb: Box<dyn FnMut(Option<String>)>);
+type RunAsyncFunc<'a> = unsafe fn(&str, cb: Box<dyn FnMut(Option<String>) + 'a>);
 type RunFunc = unsafe fn(&str) -> Option<String>;
 type GetNameFunc = unsafe fn() -> String;
 type GetCodeFunc = unsafe fn() -> String;
@@ -40,16 +41,16 @@ pub fn instantiate_async<'a>(
 ) {
     let resolver = resolver_handle.get(scope).unwrap();
     resolver_handle.reset(scope);
-    let cb = |response: Option<String>| {
-        println!("closure instantiate_async cb {:?}", response.clone());
-        // if let Some(res) = response {
-        //     let value = v8::String::new(scope, &res).unwrap();
-        //     resolver.resolve(context, value.into()).unwrap();
-        // } else {
-        //     resolver
-        //         .resolve(context, v8::undefined(scope).into())
-        //         .unwrap();
-        // }
+    let mut cb = |response: Option<String>| {
+        // println!("closure instantiate_async cb {:?}", response.clone());
+        if let Some(res) = response {
+            let value = v8::String::new(scope, &res).unwrap();
+            resolver.resolve(context, value.into()).unwrap();
+        } else {
+            resolver
+                .resolve(context, v8::undefined(scope).into())
+                .unwrap();
+        }
     };
 
     let plugin_map = PLUGIN_MAP.lock().unwrap();
